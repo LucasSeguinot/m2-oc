@@ -73,3 +73,31 @@ let swap = {
     neighbor = swap_neighbor;
     null_index = (-1, -1)
 }
+
+let insertion_neighbor (i,j) jobs schedule =
+    let t = schedule.jobs.(j) in
+    for k = j-1 downto i do
+        schedule.jobs.(k+1) <- schedule.jobs.(k)
+    done;
+    schedule.jobs.(i) <- t;
+    set_cost jobs schedule
+
+let insertion_iterator f jobs src dst =
+    let n = Array.length jobs in
+
+    for j = 1 to n-1 do
+        Array.iteri (fun i j -> dst.jobs.(i) <- j) src.jobs;
+        for i = j-1 downto 0 do
+            let t = dst.jobs.(i) in
+            dst.jobs.(i) <- dst.jobs.(i+1);
+            dst.jobs.(i+1) <- t;
+            set_cost jobs dst;
+            f (i,j)
+        done
+    done
+
+let insertion = {
+    iterator = insertion_iterator;
+    neighbor = insertion_neighbor;
+    null_index = (-1, -1)
+}
