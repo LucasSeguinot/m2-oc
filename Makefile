@@ -11,7 +11,7 @@ DOC = doc
 
 # Modules
 TARGET_MODULE = main
-ML_MODULES =
+ML_MODULES = job schedule
 CMA_MODULES = str
 
 ##############################
@@ -77,9 +77,9 @@ doc: $(MLI_FILES) $(CMI_FILES)
 	mkdir -p $(DOC)
 	$(CAMLDOC) -html -d $(DOC) $(MLI_FILES)
 
-depend: $(MLI_FILES) $(ML_FILES)
+Makefile.depend: $(MLI_FILES) $(ML_FILES)
 	$(CAMLDEP) $(MLI_FILES) $(ML_FILES) > Makefile.depend
 
-Makefile.depend: depend
+depend: Makefile.depend
 
 include Makefile.depend
