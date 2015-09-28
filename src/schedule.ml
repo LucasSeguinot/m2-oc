@@ -1,7 +1,7 @@
 open Job
 
 type schedule = {
-    job : int array;
+    jobs : int array;
     mutable cost : int
 }
 
@@ -12,5 +12,9 @@ let set_cost jobs schedule =
     Array.iter (fun i ->
         start := !start + jobs.(i).duration;
         schedule.cost <- schedule.cost + jobs.(i).weight * (max (!start - jobs.(i).deadline)0))
-        schedule.job
-;;
+        schedule.jobs
+
+let create_schedule jobs = {
+    jobs = Array.make (Array.length jobs) (-1);
+    cost = -1
+}

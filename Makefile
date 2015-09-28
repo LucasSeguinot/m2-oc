@@ -1,4 +1,4 @@
-.PHONY: all run clean mrproper doc depend
+.PHONY: all clean mrproper doc depend
 
 ##############################
 #       Configuration        #
@@ -10,19 +10,19 @@ BIN = .
 DOC = doc
 
 # Modules
-TARGET_MODULE = main
-ML_MODULES = job schedule
+TARGET_MODULES = main
+ML_MODULES = util job schedule heuristics
 CMA_MODULES = str
 
 ##############################
 #    End of configuration    #
 ##############################
 
-TARGET_MODULE_FULL = $(TARGET_MODULE:%=$(SRC)/%)
-TARGET     = $(TARGET_MODULE:%=$(BIN)/%$(EXE))
-TARGET_ML  = $(TARGET_MODULE_FULL:%=%.ml)
-TARGET_CMO = $(TARGET_MODULE_FULL:%=%.cmo)
-TARGET_CMX = $(TARGET_MODULE_FULL:%=%.cmx)
+TARGET_MODULES_FULL = $(TARGET_MODULES:%=$(SRC)/%)
+TARGET     = $(TARGET_MODULES:%=$(BIN)/%$(EXE))
+TARGET_ML  = $(TARGET_MODULES_FULL:%=%.ml)
+TARGET_CMO = $(TARGET_MODULES_FULL:%=%.cmo)
+TARGET_CMX = $(TARGET_MODULES_FULL:%=%.cmx)
 
 ML_MODULES_FULL = $(ML_MODULES:%=$(SRC)/%)
 ML_FILES  = $(ML_MODULES_FULL:%=%.ml)
@@ -49,7 +49,7 @@ CAMLDOC = ocamldoc $(INCLUDE)
 
 all: Makefile.depend $(TARGET)
 
-$(TARGET): $(CMX_FILES)
+$(TARGET): %: $(CMX_FILES)
 	mkdir -p $(BIN)
 	$(CAMLOPT) -o $@ $(CMXA_FILES) $(CMX_FILES)
 
@@ -61,9 +61,6 @@ $(CMO_FILES): %.cmo: %.ml
 
 $(CMX_FILES): %.cmx: %.ml
 	$(CAMLOPT) -c $(CMXA_FILES) $<
-
-run: $(TARGET)
-	$(TARGET)
 
 clean:
 	rm -rf $(SRC)/*.cm[oix] $(SRC)/*.o
