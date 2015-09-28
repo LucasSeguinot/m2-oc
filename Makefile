@@ -10,8 +10,8 @@ BIN = .
 DOC = doc
 
 # Modules
-TARGET_MODULES = main
-ML_MODULES = util job schedule heuristics
+TARGET_MODULES = tp1 tp2
+ML_MODULES = util job schedule heuristics neighborhood selection localSearch
 CMA_MODULES = str
 
 ##############################
@@ -19,7 +19,7 @@ CMA_MODULES = str
 ##############################
 
 TARGET_MODULES_FULL = $(TARGET_MODULES:%=$(SRC)/%)
-TARGET     = $(TARGET_MODULES:%=$(BIN)/%$(EXE))
+TARGET     = $(TARGET_MODULES:%=$(BIN)/%)
 TARGET_ML  = $(TARGET_MODULES_FULL:%=%.ml)
 TARGET_CMO = $(TARGET_MODULES_FULL:%=%.cmo)
 TARGET_CMX = $(TARGET_MODULES_FULL:%=%.cmx)
@@ -35,7 +35,7 @@ MLSRC = $(MLI_FILES) $(ML_FILES) $(TARGET_ML)
 
 CMI_FILES = $(MLI_FILES:%.mli=%.cmi)
 CMO_FILES = $(ML_MODULES_FULL:%=%.cmo) $(TARGET_CMO)
-CMX_FILES = $(ML_MODULES_FULL:%=%.cmx) $(TARGET_CMX)
+CMX_FILES = $(ML_MODULES_FULL:%=%.cmx)
 
 CMA_FILES = $(CMA_MODULES:%=%.cma)
 CMXA_FILES = $(CMA_MODULES:%=%.cmxa)
@@ -49,9 +49,9 @@ CAMLDOC = ocamldoc $(INCLUDE)
 
 all: Makefile.depend $(TARGET)
 
-$(TARGET): %: $(CMX_FILES)
+$(TARGET): $(BIN)/%: $(CMX_FILES) $(SRC)/%.cmx
 	mkdir -p $(BIN)
-	$(CAMLOPT) -o $@ $(CMXA_FILES) $(CMX_FILES)
+	$(CAMLOPT) -o $@ $(CMXA_FILES) $^
 
 $(CMI_FILES): %.cmi: %.mli
 	$(CAMLC) -c $<
@@ -59,15 +59,18 @@ $(CMI_FILES): %.cmi: %.mli
 $(CMO_FILES): %.cmo: %.ml
 	$(CAMLC) -c $(CMA_FILES) $<
 
-$(CMX_FILES): %.cmx: %.ml
+$(CMX_FILES) $(TARGET_CMX): %.cmx: %.ml
 	$(CAMLOPT) -c $(CMXA_FILES) $<
 
 clean:
-	rm -rf $(SRC)/*.cm[oix] $(SRC)/*.o
-	rm -rf Makefile.depend
+	find $(SRC) -name *.cmi -delete
+	find $(SRC) -name *.cmo -delete
+	find $(SRC) -name *.cmx -delete
+	find $(SRC) -name *.o -delete
+	rm -f Makefile.depend
 
 mrproper: clean
-	-rm -rf $(BIN)
+	-rm -f $(TARGET)
 	-rm -rf $(DOC)
 
 doc: $(MLI_FILES) $(CMI_FILES)
