@@ -1,7 +1,7 @@
 open Types
 
 let task filename =
-    let jobs = Job.parse filename in
+    let jobs, best = Job.parse filename in
 
     let rand1 = (Heuristics.random jobs).cost in
     let rand2 = (Heuristics.random jobs).cost in
