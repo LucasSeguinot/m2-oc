@@ -1,7 +1,4 @@
-*.cmi
-*.cmo
-*.cmx
-*.o
-Makefile.depend
-tp1
-tp2
+build
+docs
+/tp*
+/tp*.byte

@@ -4,82 +4,62 @@
 #       Configuration        #
 ##############################
 
-# Folders
-SRC = src
-BIN = .
-DOC = doc
+# Programs to be built. No need to list dependent
+# modules in the same directory, or sub directories.
+PROGRAMS=tp1 tp2
 
-# Modules
-TARGET_MODULES = tp1 tp2
-ML_MODULES = util job schedule heuristics neighborhood selection localSearch
-CMA_MODULES = str
+# OCaml build tool.
+BUILDER=ocamlbuild
+
+# OCaml libraries outside of the stdlib.
+LIBS=str
+
+# $(DOCFILE).odocl must exist in $(SRCDIR) and
+# contain a list of module names (not file names)
+# to be documented.
+DOCFILE=oc
+
+# Where everything is stored
+SRCDIR=src
+DOCDIR=docs
+BUILDDIR=build
+
+# Path separator for the current platform.
+# Uncomment the next line for Windows platforms.
+#/ := $(strip \)
+# Uncomment the next line for UNIX platforms.
+/=/
 
 ##############################
 #    End of configuration    #
 ##############################
 
-TARGET_MODULES_FULL = $(TARGET_MODULES:%=$(SRC)/%)
-TARGET     = $(TARGET_MODULES:%=$(BIN)/%)
-TARGET_ML  = $(TARGET_MODULES_FULL:%=%.ml)
-TARGET_CMO = $(TARGET_MODULES_FULL:%=%.cmo)
-TARGET_CMX = $(TARGET_MODULES_FULL:%=%.cmx)
+# Paths of the programs built by ocamlbuild
+NATIVE_PROGRAMS = $(PROGRAMS:%=$(SRCDIR)$/%.native)
+BYTE_PROGRAMS = $(PROGRAMS:%=$(SRCDIR)$/%.byte)
 
-ML_MODULES_FULL = $(ML_MODULES:%=$(SRC)/%)
-ML_FILES  = $(ML_MODULES_FULL:%=%.ml)
+# Paths of the symlinks to these programs
+NATIVE_SYMLINKS = $(PROGRAMS)
+BYTE_SYMLINKS = $(PROGRAMS:%=%.byte)
 
-MODULES_MLI_FILES = $(ML_MODULES_FULL:%=%.mli)
-EXISTING_MLI_FILES = $(wildcard $(SRC)/*.mli)
-MLI_FILES = $(filter $(MODULES_MLI_FILES), $(EXISTING_MLI_FILES)) # Intersection
+all: docs $(BYTE_SYMLINKS) $(NATIVE_SYMLINKS)
 
-MLSRC = $(MLI_FILES) $(ML_FILES) $(TARGET_ML)
+docs:
+	$(BUILDER) $(SRCDIR)$/$(DOCFILE).docdir/index.html -I $(SRCDIR) -build-dir $(BUILDDIR)
+	ln -sf $(BUILDDIR)$/$(SRCDIR)$/$(DOCFILE).docdir $(DOCDIR)
 
-CMI_FILES = $(MLI_FILES:%.mli=%.cmi)
-CMO_FILES = $(ML_MODULES_FULL:%=%.cmo) $(TARGET_CMO)
-CMX_FILES = $(ML_MODULES_FULL:%=%.cmx)
+byte:
+	$(BUILDER).byte $(BYTE_PROGRAMS) -libs $(LIBS) -build-dir $(BUILDDIR)
 
-CMA_FILES = $(CMA_MODULES:%=%.cma)
-CMXA_FILES = $(CMA_MODULES:%=%.cmxa)
+native:
+	$(BUILDER).native $(NATIVE_PROGRAMS) -libs $(LIBS) -build-dir $(BUILDDIR)
 
-INCLUDE	= -I $(SRC)
+$(NATIVE_SYMLINKS): %: native
+	ln -sf $(BUILDDIR)$/$(SRCDIR)$/$*.native $*
 
-CAMLC   = ocamlfind ocamlc $(INCLUDE) $(PACKAGES_CMD) -linkpkg
-CAMLOPT = ocamlfind ocamlopt $(INCLUDE) $(PACKAGES_CMD) -linkpkg
-CAMLDEP = ocamldep $(INCLUDE)
-CAMLDOC = ocamldoc $(INCLUDE)
-
-all: Makefile.depend $(TARGET)
-
-$(TARGET): $(BIN)/%: $(CMX_FILES) $(SRC)/%.cmx
-	mkdir -p $(BIN)
-	$(CAMLOPT) -o $@ $(CMXA_FILES) $^
-
-$(CMI_FILES): %.cmi: %.mli
-	$(CAMLC) -c $<
-
-$(CMO_FILES): %.cmo: %.ml
-	$(CAMLC) -c $(CMA_FILES) $<
-
-$(CMX_FILES) $(TARGET_CMX): %.cmx: %.ml
-	$(CAMLOPT) -c $(CMXA_FILES) $<
+$(BYTE_SYMLINKS): %: byte
+	ln -sf $(BUILDDIR)$/$(SRCDIR)$/$* $*
 
 clean:
-	find $(SRC) -name *.cmi -delete
-	find $(SRC) -name *.cmo -delete
-	find $(SRC) -name *.cmx -delete
-	find $(SRC) -name *.o -delete
-	rm -f Makefile.depend
-
-mrproper: clean
-	-rm -f $(TARGET)
-	-rm -rf $(DOC)
-
-doc: $(MLI_FILES) $(CMI_FILES)
-	mkdir -p $(DOC)
-	$(CAMLDOC) -html -d $(DOC) $(MLI_FILES)
-
-Makefile.depend: $(MLI_FILES) $(ML_FILES)
-	$(CAMLDEP) $(MLI_FILES) $(ML_FILES) > Makefile.depend
-
-depend: Makefile.depend
-
-include Makefile.depend
+	$(BUILDER) -clean -build-dir $(BUILDDIR)
+	rm -f $(NATIVE_SYMLINKS) $(BYTE_SYMLINKS) $(DOCDIR)
