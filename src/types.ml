@@ -6,6 +6,7 @@ type job = {
 
 type schedule = {
     jobs : int array;
+    start : int array;
     mutable cost : int
 }
 

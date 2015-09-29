@@ -5,3 +5,7 @@ let swap a i j =
 
 let shuffle a =
     Array.iteri (fun i _ -> swap a i (Random.int (i+1))) a
+
+let print_int_array a =
+    Array.iter (Printf.printf "%d ") a;
+    print_newline ()
