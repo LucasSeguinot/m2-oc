@@ -1,10 +1,9 @@
-open Job
-open Schedule
+open Types
 
 let task filename =
     let jobs = Job.parse filename in
 
-    let temp = create_schedule jobs in
+    let temp = Schedule.create jobs in
 
     let exchbest = (LocalSearch.hill_climbing Neighborhood.exchange Selection.best jobs (Heuristics.mdd jobs) temp).cost in
     let exchfirst = (LocalSearch.hill_climbing Neighborhood.exchange Selection.first jobs (Heuristics.mdd jobs) temp).cost in

@@ -1,8 +1,4 @@
-type job = {
-    duration : int;
-    weight : int;
-    deadline : int
-}
+open Types
 
 exception ParsingError
 

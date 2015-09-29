@@ -1,5 +1,4 @@
-open Job
-open Schedule
+open Types
 
 let task filename =
     let jobs = Job.parse filename in
