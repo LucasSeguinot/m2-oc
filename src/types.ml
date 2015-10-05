@@ -10,8 +10,7 @@ type schedule = {
     mutable cost : int
 }
 
-type 'a neighborhood = {
-    iterator : ('a -> unit) -> job array -> schedule -> schedule -> unit;
-    neighbor : 'a -> job array -> schedule -> unit;
-    null_index : 'a
+type neighborhood = {
+    iterator : (int list -> unit) -> job array -> schedule -> schedule -> unit;
+    neighbor : int list -> job array -> schedule -> unit
 }

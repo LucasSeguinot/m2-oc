@@ -9,3 +9,10 @@ let shuffle a =
 let print_int_array a =
     Array.iter (Printf.printf "%d ") a;
     print_newline ()
+
+let get_time = Unix.gettimeofday
+
+let time f x =
+    let t = get_time () in
+    let fx = f x in
+    fx, get_time () -. t

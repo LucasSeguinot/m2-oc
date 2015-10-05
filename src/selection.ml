@@ -6,7 +6,7 @@ exception FoundSchedule
 
 let first neighborhood jobs schedule temp =
     let cost = schedule.cost in
-    let index = ref neighborhood.null_index in
+    let index = ref [] in
 
     let callback i =
         if temp.cost < cost then
@@ -25,7 +25,7 @@ let first neighborhood jobs schedule temp =
 
 let best neighborhood jobs schedule temp =
     let best_cost = ref schedule.cost in
-    let best_index = ref neighborhood.null_index in
+    let best_index = ref [] in
 
     let callback i =
         if temp.cost < !best_cost then
@@ -36,7 +36,7 @@ let best neighborhood jobs schedule temp =
     in
     neighborhood.iterator callback jobs schedule temp;
 
-    if !best_index != neighborhood.null_index then
+    if !best_index != [] then
         begin
             neighborhood.neighbor !best_index jobs schedule;
             true

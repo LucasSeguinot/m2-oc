@@ -6,13 +6,13 @@
 
 # Programs to be built. No need to list dependent
 # modules in the same directory, or sub directories.
-PROGRAMS=tp1 tp2
+PROGRAMS=tp1 tp2 tp3
 
 # OCaml build tool.
 BUILDER=ocamlbuild
 
 # OCaml libraries outside of the stdlib.
-LIBS=str
+LIBS=str,unix
 
 # $(DOCFILE).odocl must exist in $(SRCDIR) and
 # contain a list of module names (not file names)

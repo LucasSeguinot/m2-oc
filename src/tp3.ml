@@ -1,11 +1,15 @@
 open Types
 
-let neighborhoods = [|Neighborhood.exchange; Neighborhood.swap; Neighborhood.insertion|];;
-let neighborhood_names = [|"e"; "s"; "i"|];;
-let selections = [|Selection.best; Selection.first|];;
-let selection_names = [|"b"; "f"|];;
-let heuristics = [|Heuristics.random; Heuristics.eed; Heuristics.mdd|];;
-let heuristic_names = [|"r"; "e"; "m"|];;
+let searches = [|LocalSearch.vnd; LocalSearch.piped_vnd|];;
+let searches_names = [|"v"; "p"|];;
+
+let esi = [|Neighborhood.exchange; Neighborhood.swap; Neighborhood.insertion|];;
+let eis = [|Neighborhood.exchange; Neighborhood.insertion; Neighborhood.swap|];;
+let neighborhoods = [|esi;eis|];;
+let neighborhoods_names = [|"esi";"eis"|];;
+
+let heuristics = [|Heuristics.random; Heuristics.mdd|];;
+let heuristics_names = [|"r"; "m"|];;
 
 let task filename =
     let n = 1 in
@@ -15,13 +19,13 @@ let task filename =
     let bestf = float_of_int best in
 
     print_string (Filename.basename filename);
-    for i = 0 to Array.length neighborhoods - 1 do
-        for j = 0 to Array.length selections - 1 do
+    for i = 0 to Array.length searches - 1 do
+        for j = 0 to Array.length neighborhoods - 1 do
             for k = 0 to Array.length heuristics - 1 do
                 let average_deviation = ref 0 in
                 let average_time = ref 0. in
                 for l = 1 to n do
-                    let schedule, time = Util.time (LocalSearch.hill_climbing neighborhoods.(i) selections.(j) jobs) (heuristics.(k) jobs) in
+                    let schedule, time = Util.time (searches.(i) neighborhoods.(j) Selection.best jobs) (heuristics.(k) jobs) in
                     average_deviation := !average_deviation + 100 * (schedule.cost - best);
                     average_time := !average_time +. time
                 done;
@@ -38,11 +42,11 @@ let task filename =
 
 let main argv =
     print_string "filename";
-    for i = 0 to Array.length neighborhoods - 1 do
-        for j = 0 to Array.length selections - 1 do
+    for i = 0 to Array.length searches - 1 do
+        for j = 0 to Array.length neighborhoods - 1 do
             for k = 0 to Array.length heuristics - 1 do
-                Printf.printf ",d(%s%s%s)" neighborhood_names.(i) selection_names.(j) heuristic_names.(k);
-                Printf.printf ",t(%s%s%s)" neighborhood_names.(i) selection_names.(j) heuristic_names.(k)
+                Printf.printf ",d(%s%s%s)" searches_names.(i) heuristics_names.(k) neighborhoods_names.(j);
+                Printf.printf ",t(%s%s%s)" searches_names.(i) heuristics_names.(k) neighborhoods_names.(j)
             done
         done
     done;
